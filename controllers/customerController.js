@@ -2,40 +2,20 @@ const mongoose = require("mongoose");
 
 const Customer = require("./../models/customerModel");
 const AppError = require("./../utils/appError");
+const APIFeatures = require("./../utils/apiFeatures");
 
 const { catchAsync } = require("../utils/catchAsync");
 
 exports.getAllCustomers = catchAsync(async (req, res, next) => {
   const totalCustomers = await Customer.countDocuments();
 
-  const queryString = req.query;
-  let query = Customer.find();
+  const features = new APIFeatures(Customer.find(), req.query)
+    .sort()
+    .limitFields()
+    .paginate();
 
-  // Pagination
-  const page = queryString.page * 1 || 1;
-  const limit = queryString.limit * 1 || 30;
-  const skip = (page - 1) * limit;
+  const customers = await features.query;
 
-  query = query.skip(skip).limit(limit);
-
-  //Sorting
-
-  if (queryString.sort) {
-    const sortBy = queryString.sort.split(",").join(" ");
-    query = query.sort(sortBy);
-  } else {
-    query = query.sort("-joinedAt -lastLogin");
-  }
-
-  // Limiting Fields
-  if (queryString.fields) {
-    const limitFields = queryString.fields.split(",").join(" ");
-    query = query.select(limitFields);
-  } else {
-    query = query.select("firstName lastName phone email");
-  }
-
-  const customers = await query;
   let customerStats;
   if (req.stats) {
     customerStats = req.stats;
