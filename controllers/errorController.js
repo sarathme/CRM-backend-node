@@ -16,6 +16,7 @@ const sendDevErr = (err, req, res) => {
 
 // Function to handle errors on production
 const sendProdErr = (err, req, res) => {
+  console.error("ERROR 💥", err);
   // A) Operational, trusted error: send message to client
   if (err.isOperational) {
     return res.status(err.statusCode).json({
@@ -41,6 +42,12 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     sendDevErr(err, req, res);
   } else if (process.env.NODE_ENV === "production") {
+    if (err.name === "CastError") {
+      return res.status(404).json({
+        status: "fail",
+        message: "Customer not found",
+      });
+    }
     sendProdErr(err, req, res);
   }
 };
