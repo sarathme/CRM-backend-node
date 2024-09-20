@@ -26,7 +26,7 @@ const productSchema = new mongoose.Schema({
     type: Number,
     validate: {
       validator: function (val) {
-        return val <= 0;
+        return val >= 0;
       },
       message: "Stocks cannot be in negative",
     },

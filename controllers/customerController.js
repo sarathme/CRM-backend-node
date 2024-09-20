@@ -1,5 +1,3 @@
-const mongoose = require("mongoose");
-
 const Customer = require("./../models/customerModel");
 const AppError = require("./../utils/appError");
 const APIFeatures = require("./../utils/apiFeatures");
