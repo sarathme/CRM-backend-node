@@ -6,6 +6,7 @@ const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 
 const customerRouter = require("./routes/customerRoutes");
+const productRouter = require("./routes/productRoutes");
 
 // APP CODES
 
@@ -13,7 +14,11 @@ const app = express();
 
 // ROUTES
 
+// Customers route
 app.use("/api/v1/customers", customerRouter);
+
+// Products route
+app.use("/api/v1/products", productRouter);
 
 // Fallback route for undefined routes
 
