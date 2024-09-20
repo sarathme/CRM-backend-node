@@ -7,10 +7,14 @@ const globalErrorHandler = require("./controllers/errorController");
 
 const customerRouter = require("./routes/customerRoutes");
 const productRouter = require("./routes/productRoutes");
+const userRouter = require("./routes/userRoutes");
 
 // APP CODES
 
 const app = express();
+
+// Middleware to attach body to the request object
+app.use(express.json());
 
 // ROUTES
 
@@ -19,6 +23,7 @@ app.use("/api/v1/customers", customerRouter);
 
 // Products route
 app.use("/api/v1/products", productRouter);
+app.use("/api/v1/users", userRouter);
 
 // Fallback route for undefined routes
 

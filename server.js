@@ -7,7 +7,7 @@ const app = require("./app");
 
 const port = process.env.PORT || 3000;
 
-const DB = "mongodb://localhost:27017/crm_capstone";
+const DB = process.env.DATABASE;
 
 mongoose
   .connect(DB, {
