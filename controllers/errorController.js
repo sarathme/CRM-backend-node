@@ -1,3 +1,4 @@
+const AppError = require("./../utils/appError");
 // Global error handling middleware for entire express app.
 
 // Function to handle errors on development
@@ -15,9 +16,20 @@ const sendDevErr = (err, req, res) => {
 };
 
 // Function to handle errors on production
-const sendProdErr = (err, req, res) => {
-  console.error("ERROR 💥", err);
-  // A) Operational, trusted error: send message to client
+
+const handleObjectIdErrorDB = (err) => {
+  const message = `Invalid ${err.path}: ${err.value}.`;
+  return new AppError(message, 400);
+};
+
+handleDuplicateFieldsErrorDB = (err) => {
+  const msgArr = Object.entries(err.keyValue);
+  const message = `${msgArr[0][0]} ${msgArr[0][1]} already exists`;
+  return new AppError(message, 400);
+};
+
+const sendProdErr = (err, res) => {
+  //  Operational, trusted error: send message to client
   if (err.isOperational) {
     return res.status(err.statusCode).json({
       status: err.status,
@@ -25,7 +37,7 @@ const sendProdErr = (err, req, res) => {
     });
   }
 
-  // B) Programming or other unknown error: don't leak error details
+  // Programming or other unknown error: don't leak error details
   // 1) Log error
   console.error("ERROR 💥", err);
   // 2) Send generic message
@@ -42,12 +54,10 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     sendDevErr(err, req, res);
   } else if (process.env.NODE_ENV === "production") {
-    if (err.name === "CastError") {
-      return res.status(404).json({
-        status: "fail",
-        message: "Customer not found",
-      });
-    }
-    sendProdErr(err, req, res);
+    let error = { ...err };
+    error.message = err.message;
+    if (error.kind === "ObjectId") error = handleObjectIdErrorDB(error);
+    if (error.code === 11000) error = handleDuplicateFieldsErrorDB(error);
+    sendProdErr(error, res);
   }
 };

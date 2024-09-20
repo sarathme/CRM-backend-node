@@ -1,3 +1,5 @@
+const { promisify } = require("util");
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -17,8 +19,6 @@ exports.loginUser = catchAsync(async (req, res, next) => {
   // Finding the user using the provided employee code
   const user = await User.findOne({ empCode }).select("+password");
 
-  console.log(user);
-  console.log(user.password);
   // Error response if no user exists with the provided employee code or password is incorrect
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return next(new AppError(`Invalid employee code or password`, 401));
@@ -40,3 +40,51 @@ exports.loginUser = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.protect = catchAsync(async (req, res, next) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+
+  if (!token) {
+    return next(
+      new AppError("You are not logged in. Please login to continue", 401)
+    );
+  }
+
+  // Verifying JWT token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // Check if user still exists
+  const currentUser = await User.findById(decoded.id);
+
+  if (!currentUser) {
+    return next(
+      new AppError(
+        "The user belonging to this token does no longer exist.",
+        401
+      )
+    );
+  }
+
+  req.user = currentUser;
+
+  next();
+});
+
+// Authorizarion to access role specific routes.
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You do not have permission to perform this action", 403)
+      );
+    }
+
+    next();
+  };
+};

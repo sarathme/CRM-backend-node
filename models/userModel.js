@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   empCode: {
     type: String,
     required: [true, "Please provide a employee Code"],
+    unique: true,
   },
   personalEmail: {
     type: String,
