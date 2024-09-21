@@ -6,10 +6,6 @@ const querySchema = new mongoose.Schema({
     ref: "Customer",
     required: [true, "Please provide a customer ID"],
   },
-  productId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-  },
 
   subject: {
     type: String,
