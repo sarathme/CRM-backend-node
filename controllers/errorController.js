@@ -17,7 +17,7 @@ const sendDevErr = (err, req, res) => {
 
 // Function to handle errors on production
 
-const handleObjectIdErrorDB = (err) => {
+const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
   return new AppError(message, 400);
 };
@@ -56,7 +56,7 @@ module.exports = (err, req, res, next) => {
   } else if (process.env.NODE_ENV === "production") {
     let error = { ...err };
     error.message = err.message;
-    if (error.kind === "ObjectId") error = handleObjectIdErrorDB(error);
+    if (error.name === "CastError") error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsErrorDB(error);
     sendProdErr(error, res);
   }
