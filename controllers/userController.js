@@ -3,13 +3,11 @@ const { catchAsync } = require("../utils/catchAsync");
 const User = require("./../models/userModel");
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const usersAll = await User.find();
-
-  // Filter out admins from the users collection
-  const users = usersAll.filter((user) => user.role !== "admin");
+  const users = await User.find({ role: { $ne: "admin" } });
 
   res.status(200).json({
     status: "success",
+
     data: {
       users,
     },
@@ -26,6 +24,7 @@ exports.getUser = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
+
     data: {
       user,
     },
