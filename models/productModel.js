@@ -30,6 +30,10 @@ const productSchema = new mongoose.Schema({
       message: "Stocks cannot be in negative",
     },
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const Product = mongoose.model("Product", productSchema);

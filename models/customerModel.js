@@ -53,6 +53,8 @@ const customerSchema = new mongoose.Schema(
   }
 );
 
+// Virtual property to derive status of the customers
+
 customerSchema.virtual("status").get(function () {
   const now = Date.now();
   const last30Days = new Date(now - 30 * 24 * 60 * 60 * 1000);
@@ -65,6 +67,10 @@ customerSchema.virtual("status").get(function () {
     return "inactive";
   }
 });
+
+// Virtual populate field for defining feedbacks of the customer
+
+customerSchema.virtual("feedbacks", {});
 
 const Customer = mongoose.model("Customer", customerSchema);
 
