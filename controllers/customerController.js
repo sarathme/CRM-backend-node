@@ -35,7 +35,11 @@ exports.getAllCustomers = catchAsync(async (req, res, next) => {
 exports.getCustomer = catchAsync(async (req, res, next) => {
   const { customerId } = req.params;
 
-  const customer = await Customer.findById(customerId);
+  // Populating the virtual properties feedbacks and queries for the requested customers.
+
+  const customer = await Customer.findById(customerId)
+    .populate("feedbacks")
+    .populate("queries");
 
   if (!customer) {
     return next(

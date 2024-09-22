@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
+require("./feedbackModel");
+require("./queryModel");
+
 const customerSchema = new mongoose.Schema(
   {
     firstName: {
@@ -70,7 +73,17 @@ customerSchema.virtual("status").get(function () {
 
 // Virtual populate field for defining feedbacks of the customer
 
-customerSchema.virtual("feedbacks", {});
+customerSchema.virtual("feedbacks", {
+  ref: "Feedback",
+  foreignField: "customerId",
+  localField: "_id",
+});
+// Virtual populate field for defining queries of the customer
+customerSchema.virtual("queries", {
+  ref: "Query",
+  foreignField: "customerId",
+  localField: "_id",
+});
 
 const Customer = mongoose.model("Customer", customerSchema);
 
