@@ -34,7 +34,11 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
 exports.getProduct = catchAsync(async (req, res, next) => {
   const { productId } = req.params;
 
-  const product = await Product.findById(productId);
+  // Populating the virtual properties feedbacks and queries of requested products
+
+  const product = await Product.findById(productId)
+    .populate("feedbacks")
+    .populate("queries");
 
   if (!product) {
     return next(
