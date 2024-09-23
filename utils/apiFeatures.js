@@ -4,6 +4,16 @@ class APIFeatures {
     this.queryStr = queryStr;
   }
 
+  filter() {
+    const queryObj = { ...this.queryStr };
+    const excludedFields = ["page", "sort", "limit", "fields"];
+    excludedFields.forEach((el) => delete queryObj[el]);
+
+    console.log(queryObj);
+    this.query = this.query.find(queryObj);
+    return this;
+  }
+
   sort() {
     if (this.queryStr.sort) {
       const sortBy = this.queryStr.sort.split(",").join(" ");
