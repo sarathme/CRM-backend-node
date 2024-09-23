@@ -9,7 +9,6 @@ class APIFeatures {
     const excludedFields = ["page", "sort", "limit", "fields"];
     excludedFields.forEach((el) => delete queryObj[el]);
 
-    console.log(queryObj);
     this.query = this.query.find(queryObj);
     return this;
   }
@@ -23,8 +22,8 @@ class APIFeatures {
   }
 
   paginate() {
-    const page = this.queryStr.page * 1 || 1;
-    const limit = this.queryStr.limit * 1 || 20;
+    const page = this.queryStr.page * 1;
+    const limit = this.queryStr.limit * 1;
     const skip = (page - 1) * limit;
 
     this.query = this.query.skip(skip).limit(limit);
