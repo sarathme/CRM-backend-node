@@ -10,7 +10,7 @@ const feedbackSchema = new mongoose.Schema({
     type: Number,
     validate: {
       validator: function (val) {
-        return val > 1.0 && val < 5.0;
+        return val >= 1.0 && val <= 5.0;
       },
       message: "Please rate between 1.0 and 5.0",
     },
@@ -27,11 +27,18 @@ const feedbackSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+
+  feedbackType: {
+    type: String,
+    enum: ["service", "product"],
+  },
   productId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Product",
     required: [
-      true,
+      function () {
+        return this.feedbackType === "product";
+      },
       "Please mention the product you are giving feedback about",
     ],
   },
