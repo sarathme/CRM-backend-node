@@ -8,5 +8,6 @@ const feedbackController = require("./../controllers/feedbackController");
 const router = express.Router();
 
 router.route("/").get(feedbackController.getAllFeedbacks);
+router.route("/stats").get(feedbackController.getFeedbackStats);
 
 module.exports = router;

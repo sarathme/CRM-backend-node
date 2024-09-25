@@ -30,3 +30,21 @@ exports.getAllFeedbacks = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getFeedbackStats = catchAsync(async (req, res, next) => {
+  const stats = await Feedback.aggregate([
+    {
+      $group: {
+        _id: "$feedbackType",
+        avgRating: { $avg: "$rating" },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+  res.status(200).json({
+    status: "success",
+    data: {
+      stats,
+    },
+  });
+});
