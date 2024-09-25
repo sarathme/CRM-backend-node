@@ -4,22 +4,26 @@ const APIFeatures = require("./../utils/apiFeatures");
 const AppError = require("./../utils/appError");
 
 exports.getAllProducts = catchAsync(async (req, res, next) => {
-  const totalProducts = await Product.countDocuments();
-
-  console.log(req.query.page * 1);
+  if (!req.query.page || !req.query.limit) {
+    req.query.page = req.query.page || 1;
+    req.query.limit = req.query.limit || 10;
+  }
+  // req.query.productCatogary = "Rustic";
+  const totalProducts = await Product.countDocuments(
+    new APIFeatures(Product.find(), req.query).filter().query
+  );
 
   if (!req.query.sort) {
     req.query.sort = "-createdAt";
   }
-  const features = new APIFeatures(Product.find(), req.query).sort().paginate();
+  const features = new APIFeatures(Product.find(), req.query)
+    .sort()
+    .paginate()
+    .filter();
 
   const products = await features.query;
 
-  const totalPages = Math.ceil(totalProducts / products.length);
-
-  if (totalPages === Infinity) {
-    return next(new AppError("No more products to be found", 404));
-  }
+  const totalPages = Math.ceil(totalProducts / req.query.limit);
 
   res.status(200).json({
     status: "success",
