@@ -56,3 +56,15 @@ exports.getProduct = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getProductStats = catchAsync(async (req, res, next) => {
+  const productsPerCatogary = await Product.aggregate([
+    { $group: { _id: "$productCatogary", count: { $sum: 1 } } },
+  ]);
+  res.status(200).json({
+    status: "success",
+    data: {
+      productsPerCatogary,
+    },
+  });
+});
