@@ -9,18 +9,15 @@ router.route("/login").post(authController.loginUser);
 
 // User data access routes
 
+router.use(authController.protect);
+
 router
   .route("/")
-  .get(
-    authController.protect,
-    authController.restrictTo("admin"),
-    userController.getAllUsers
-  )
+  .get(authController.restrictTo("admin"), userController.getAllUsers)
   .post(
-    authController.protect,
     authController.restrictTo("admin", "manager"),
     userController.createUser
   );
-router.route("/:userId").get(authController.protect, userController.getUser);
+router.route("/:userId").get(userController.getUser);
 
 module.exports = router;
