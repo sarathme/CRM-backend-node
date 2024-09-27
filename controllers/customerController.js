@@ -10,7 +10,7 @@ exports.getAllCustomers = catchAsync(async (req, res, next) => {
     req.query.limit = req.query.limit || 10;
   }
 
-  const totalCustomers = await Customer.countDocuments(
+  let totalCustomers = await Customer.countDocuments(
     new APIFeatures(Customer.find(), req.query).filter().query
   );
 
@@ -19,8 +19,18 @@ exports.getAllCustomers = catchAsync(async (req, res, next) => {
     .sort()
     .limitFields()
     .paginate();
+  let customers;
+  if (req.query.status) {
+    const customerQuery = await Customer.find();
 
-  const customers = await features.query;
+    customers = customerQuery.filter(
+      (customer) =>
+        customer.status === req.query.status || req.query.status === "all"
+    );
+    totalCustomers = customers.length;
+  } else {
+    customers = await features.query;
+  }
 
   let customerStats;
   if (req.stats) {
