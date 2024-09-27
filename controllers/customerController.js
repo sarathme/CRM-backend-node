@@ -19,7 +19,6 @@ exports.getAllCustomers = catchAsync(async (req, res, next) => {
     if (req.query.status === "active") {
       query = query.find({
         lastLogin: { $gte: last30Days },
-        joinedAt: { lt: last30Days },
       });
     }
     if (req.query.status === "new") {
