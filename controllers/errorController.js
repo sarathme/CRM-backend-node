@@ -22,9 +22,14 @@ const handleCastErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
-handleDuplicateFieldsErrorDB = (err) => {
+const handleDuplicateFieldsErrorDB = (err) => {
   const msgArr = Object.entries(err.keyValue);
   const message = `${msgArr[0][0]} ${msgArr[0][1]} already exists`;
+  return new AppError(message, 400);
+};
+
+const handleValidationErrorDB = (err) => {
+  const message = err.message.split(":")[2].trim();
   return new AppError(message, 400);
 };
 
@@ -58,6 +63,7 @@ module.exports = (err, req, res, next) => {
     error.message = err.message;
     if (error.name === "CastError") error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsErrorDB(error);
+    if (err.name === "ValidationError") error = handleValidationErrorDB(error);
     sendProdErr(error, res);
   }
 };
