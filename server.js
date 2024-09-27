@@ -7,8 +7,18 @@ const app = require("./app");
 
 const port = process.env.PORT || 3000;
 
-const DB = process.env.DATABASE;
-
+let DB;
+if (process.env.NODE_ENV === "development") {
+  DB = process.env.DATABASE;
+}
+if (process.env.NODE_ENV === "production") {
+  console.log(process.env.DATABASE_PROD);
+  DB = process.env.DATABASE_PROD.replace(
+    "<PASSWORD>",
+    process.env.DATABASE_PASSWORD
+  );
+  console.log(DB);
+}
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
