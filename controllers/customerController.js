@@ -5,9 +5,17 @@ const APIFeatures = require("./../utils/apiFeatures");
 const { catchAsync } = require("../utils/catchAsync");
 
 exports.getAllCustomers = catchAsync(async (req, res, next) => {
-  const totalCustomers = await Customer.countDocuments();
+  if (!req.query.page || !req.query.limit) {
+    req.query.page = req.query.page || 1;
+    req.query.limit = req.query.limit || 10;
+  }
+
+  const totalCustomers = await Customer.countDocuments(
+    new APIFeatures(Customer.find(), req.query).filter().query
+  );
 
   const features = new APIFeatures(Customer.find(), req.query)
+    .filter()
     .sort()
     .limitFields()
     .paginate();
@@ -24,7 +32,7 @@ exports.getAllCustomers = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     totalCustomers,
-    totalPages: Math.ceil(totalCustomers / customers.length),
+    totalPages: Math.ceil(totalCustomers / req.query.limit),
     data: {
       customers,
       customerStats,
