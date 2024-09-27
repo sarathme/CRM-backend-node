@@ -10,27 +10,33 @@ exports.getAllCustomers = catchAsync(async (req, res, next) => {
     req.query.limit = req.query.limit || 10;
   }
 
+  let query = Customer.find();
+
+  if (req.query.status && req.query.status !== "all") {
+    const now = Date.now();
+    const last30Days = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
+    if (req.query.status === "active") {
+      query = query.find({
+        lastLogin: { $gte: last30Days },
+        joinedAt: { lt: last30Days },
+      });
+    }
+    if (req.query.status === "new") {
+      query = query.find({ joinedAt: { $gte: last30Days } });
+    }
+    if (req.query.status === "inactive") {
+      query = query.find({ lastLogin: { $lt: last30Days } });
+    }
+  }
+
   let totalCustomers = await Customer.countDocuments(
-    new APIFeatures(Customer.find(), req.query).filter().query
+    new APIFeatures(query, req.query).query
   );
 
-  const features = new APIFeatures(Customer.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  let customers;
-  if (req.query.status) {
-    const customerQuery = await Customer.find();
+  const features = new APIFeatures(query, req.query).paginate();
 
-    customers = customerQuery.filter(
-      (customer) =>
-        customer.status === req.query.status || req.query.status === "all"
-    );
-    totalCustomers = customers.length;
-  } else {
-    customers = await features.query;
-  }
+  const customers = await features.query;
 
   let customerStats;
   if (req.stats) {
@@ -42,6 +48,7 @@ exports.getAllCustomers = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     totalCustomers,
+    cusPerPage: customers.length,
     totalPages: Math.ceil(totalCustomers / req.query.limit),
     data: {
       customers,
