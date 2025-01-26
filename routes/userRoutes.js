@@ -6,6 +6,7 @@ const userController = require("./../controllers/userController");
 const router = express.Router();
 
 router.route("/login").post(authController.loginUser);
+router.route("/signup").post(userController.createUser);
 
 // User data access routes
 
